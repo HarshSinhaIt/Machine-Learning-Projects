@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Price Prediction</title>
+    
+ 
+       
+       <style>
+    
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><b>House Price Prediction</b></h1>
+    </header>
+    <main>
+        
+<form id="predictionForm">
+    <label for="beds"><b>Bedrooms:</b></label>
+    <select id="beds" name="beds">
+        <option value="" disabled selected>Select number of bedrooms</option>
+        {% for bedroom in bedrooms %}
+            <option value="{{ bedroom }}">{{ bedroom }}</option>
+        {% endfor %}
+    </select>
+    <br>
+
+    <label for="baths"><b>Baths:</b></label>
+    <select id="baths" name="baths">
+        <option value="" disabled selected>Select number of bathrooms</option>
+        {% for bathroom in bathrooms %}
+            <option value="{{ bathroom }}">{{ bathroom }}</option>
+        {% endfor %}
+    </select>
+    <br>
+
+    <label for="size"><b>Size:</b></label>
+    <select id="size" name="size">
+        <option value="" disabled selected>Select size of the house</option>
+        {% for house_size in sizes %}
+            <option value="{{ house_size }}">{{ house_size }} sqft</option>
+        {% endfor %}
+    </select>
+    <br>
+    <label for="zip_code"><b>Zip Code:</b></label>
+    <select id="zip_code" name="zip_code">
+        <option value="" disabled selected>Select zip code</option>
+        {% for zip_code in zip_codes %}
+            <option value="{{ zip_code }}">{{ zip_code }}</option>
+        {% endfor %}
+    </select>
+
+    <br>
+    
+    <button type="button" onclick="sendData()">Predict Price of House</button>
+
+    
+    <div id="predictedPrice"></div>
+</form>
+
+    </main>
+    <footer>
+        
+    </footer>
+    
+    <script>
+        
+        function fetchOptions(endpoint, dropdownId) {
+            fetch(endpoint)
+                .then(response => response.json())
+                .then(data => {
+                    const dropdown = document.getElementById(dropdownId);
+                    dropdown.innerHTML = '<option value="" disabled selected>Select an option</option>';
+                    data.forEach(option => {
+                        const optionElement = document.createElement('option');
+                        optionElement.value = option;
+                        optionElement.textContent = option;
+                        dropdown.appendChild(optionElement);
+                    });
+                });
+        }
+
+       
+        window.onload = function() {
+            fetchOptions('/bedrooms', 'beds');
+            fetchOptions('/bathrooms', 'baths');
+            fetchOptions('/sizes', 'size');
+            fetchOptions('/zip_codes', 'zip_code');
+        };
+
+        
+        function sendData() {
+            const form = document.getElementById('predictionForm');
+            const formData = new FormData(form);
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(price => {
+                document.getElementById("predictedPrice").innerHTML = "Price: INR " + price;
+            });
+        }
+    </script>
+</body>
+</html>
